@@ -1,0 +1,109 @@
+const int redLED = 4;
+const int yellowLED = 3;
+const int greenLED = 2;
+
+// Timing
+const unsigned long onTime = 3000;
+const unsigned long offTime = 2000;
+
+// Traffic light states
+enum LightState {
+  RED_ON,
+  RED_GAP,
+  YELLOW_ON,
+  YELLOW_GAP,
+  GREEN_ON,
+  GREEN_GAP
+};
+
+LightState currentState = RED_ON;
+unsigned long stateStartTime = 0;
+
+// Control the LEDs
+void updateLights() {
+
+  digitalWrite(redLED, LOW);
+  digitalWrite(yellowLED, LOW);
+  digitalWrite(greenLED, LOW);
+
+  switch (currentState) {
+
+    case RED_ON:
+      digitalWrite(redLED, HIGH);
+      break;
+
+    case YELLOW_ON:
+      digitalWrite(yellowLED, HIGH);
+      break;
+
+    case GREEN_ON:
+      digitalWrite(greenLED, HIGH);
+      break;
+
+    default:
+      break;
+  }
+}
+
+void setup() {
+
+  pinMode(redLED, OUTPUT);
+  pinMode(yellowLED, OUTPUT);
+  pinMode(greenLED, OUTPUT);
+
+  stateStartTime = millis();
+  updateLights();
+}
+
+void loop() {
+
+  unsigned long elapsed = millis() - stateStartTime;
+
+  LightState previousState = currentState;
+
+  switch (currentState) {
+
+    case RED_ON:
+      if (elapsed >= onTime) {
+        currentState = RED_GAP;
+      }
+      break;
+
+    case RED_GAP:
+      if (elapsed >= offTime) {
+        currentState = YELLOW_ON;
+      }
+      break;
+
+    case YELLOW_ON:
+      if (elapsed >= onTime) {
+        currentState = YELLOW_GAP;
+      }
+      break;
+
+    case YELLOW_GAP:
+      if (elapsed >= offTime) {
+        currentState = GREEN_ON;
+      }
+      break;
+
+    case GREEN_ON:
+      if (elapsed >= onTime) {
+        currentState = GREEN_GAP;
+      }
+      break;
+
+    case GREEN_GAP:
+      if (elapsed >= offTime) {
+        currentState = RED_ON;
+      }
+      break;
+  }
+
+  // Update LEDs when the state changes
+  if (currentState != previousState) {
+
+    stateStartTime = millis();
+    updateLights();
+  }
+}
